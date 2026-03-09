@@ -2,15 +2,19 @@ package compund_Interest;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Properties;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class Calculate {
 
@@ -22,6 +26,16 @@ public class Calculate {
 		
 		WebDriver driver = new ChromeDriver();
 		driver.get(propertiesobj.getProperty("URL"));
+		
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		WebElement popupButton = wait.until(
+		        ExpectedConditions.elementToBeClickable(By.xpath("//button[@id='wzrk-confirm']"))
+		);
+
+		popupButton.click();
+		//wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//button[@id=\'wzrk-confirm\']"))).click();
+		/*Alert myalert=wait.until(ExpectedConditions.alertIsPresent());
+		myalert.accept();*/
 		
 		String Sheet= "Sheet1";
 		String File = System.getProperty("user.dir")+"//Test_Data//Compound.xlsx";
@@ -58,9 +72,14 @@ public class Calculate {
 				
 				calculate.click();
 				
+
+				wait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("wzrk-overlay")));
+
+				wait.until(ExpectedConditions.elementToBeClickable(calculate)).click();
+				
 				String ev=driver.findElement(By.xpath("//span[@id='resp_matval']//strong")).getText();
 				
-				if(ev==exp.toString()) {
+				if(ev.equals(exp.toString())) {
 					System.out.println("Test Passed");
 					Utilities.setCell(File, Sheet, r, 6, "Pass");
 					Utilities.fillGreenColor(File, Sheet, r, 6);
